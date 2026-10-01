@@ -119,9 +119,10 @@ function initReplay(){
  var box=$("rpx");if(!box)return;
  var opts=S.rounds.slice().reverse().map(function(r){return'<option value="'+(r.no-1)+'">R'+r.no+' - '+esc(r.name)+'</option>'}).join("");
  box.innerHTML='<div class="ctl"><select id="rsel">'+opts+'</select><button class="pri" id="rgo">Replay</button></div><div class="rpw"><div class="rpc"><svg id="rsvg" viewBox="0 0 1000 800"></svg></div><div class="tw" id="rtw"></div></div>';
- $("rgo").onclick=play;$("rsel").onchange=play;play();
+ function safe(m){try{play(m)}catch(e){$("rtw").textContent="Replay error: "+(e&&e.message)}}
+ $("rgo").onclick=function(){safe(true)};$("rsel").onchange=function(){safe(true)};safe(false);
 }
-function play(){
+function play(manual){
  cancelAnimationFrame(raf);
  var rn=S.rounds[+$("rsel").value],tr=S.cfg.tracks[rn.track]||{},d=smooth(tr.pts||DEFPTS),svg=$("rsvg");
  svg.innerHTML='<path d="'+d+'" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="58" stroke-linejoin="round"/><path id="rpath" d="'+d+'" fill="none" stroke="#3a3a44" stroke-width="52" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.5" stroke-dasharray="8 8"/>';
@@ -132,20 +133,31 @@ function play(){
   svg.insertAdjacentHTML("beforeend",'<g id="c'+r.pos+'"><circle r="8" fill="'+tc(r.team)+'" stroke="#fff" stroke-width="2"/>'+(r.pos<=6?'<text y="-14" text-anchor="middle" font-size="16" font-weight="700" fill="#fff" stroke="#000" stroke-width="3" paint-order="stroke" style="font-family:sans-serif">'+code+'</text>':'')+'</g>');
   return{r:r,el:$("c"+r.pos),g:r.g||r.pos,spd:r.spd!=null?r.spd:1-.012*(r.pos-1),out:r.out!=null?r.out:(r.dnf?.5:1),prog:0,done:false};
  });
- var T=40000,LAPS=5,t0=performance.now(),sig="",still=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+ var T=40000,LAPS=5,t0=performance.now(),sig="",still=!manual&&!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
  function tower(fin){
-  var arr=cars.slice().sort(fin?function(a,b){return a.r.pos-b.r.pos}:function(a,b){return(a.done?1:0)-(b.done?1:0)||b.prog-a.prog});
-  var s=arr.map(function(c){return c.r.pos+(c.done?"x":"")}).join();if(s===sig)return;sig=s;
-  $("rtw").innerHTML=arr.map(function(c,i){return'<div><b>'+(i+1)+'</b><i style="background:'+tc(c.r.team)+'"></i><span'+(c.r.dnf&&(fin||c.done)?' class="x"':'')+'>'+esc(c.r.name)+'</span></div>'}).join("");
+  var arr=cars.slice().sort(fin?function(a,b){return a.r.pos-b.r.pos}:function(a,b){
+   var fa=a.ft!=null,fb=b.ft!=null;
+   if(fa||fb)return fa&&fb?a.ft-b.ft:(fa?-1:1);
+   return(a.done?1:0)-(b.done?1:0)||b.prog-a.prog});
+  var s=arr.map(function(c){return c.r.pos+(c.done?"x":"")+(c.ft!=null?"f":"")}).join();if(s===sig)return;sig=s;
+  $("rtw").innerHTML=arr.map(function(c,i){return'<div><b>'+(i+1)+'</b><i style="background:'+tc(c.r.team)+'"></i><span'+(c.r.dnf&&(fin||c.done)?' class="x"':'')+'>'+esc(c.r.name)+(c.ft!=null&&!fin?' &#127937;':'')+'</span></div>'}).join("");
  }
  function frame(now){
-  var u=still?1:Math.min(1,(now-t0)/T);
+  var tt=still?1:(now-t0)/T,u=Math.min(1,tt),gone=true;
   cars.forEach(function(c){
-   c.done=c.out<1&&u>=c.out;c.prog=Math.min(u,c.out)*LAPS*c.spd-.004*(c.g-1);
-   var L=(((c.prog%1)+1)%1)*len,pt=path.getPointAtLength(L),q=path.getPointAtLength((L+4)%len),dx=q.x-pt.x,dy=q.y-pt.y,m=Math.sqrt(dx*dx+dy*dy)||1,off=((c.g%3)-1)*14;
-   c.el.setAttribute("transform","translate("+(pt.x-dy/m*off).toFixed(1)+" "+(pt.y+dx/m*off).toFixed(1)+")");c.el.style.opacity=c.done?.35:1;
+   var raw,op=1,off=.004*(c.g-1);
+   if(c.out<1){c.done=u>=c.out;raw=Math.min(u,c.out)*LAPS*c.spd-off;if(c.done)op=tt>1?Math.max(0,.35-(tt-1)*2):.35}
+   else{var pf=Math.ceil(LAPS*c.spd-off-1e-9);raw=tt*LAPS*c.spd-off;
+    if(!still&&raw>=pf){if(c.ft==null)c.ft=tt;var x=raw-pf;raw=pf+Math.min(.12,x*.3);op=Math.max(0,1-x*3)}}
+   if(op>0)gone=false;
+   c.prog=raw;
+   var L=(((raw%1)+1)%1)*len,pt=path.getPointAtLength(L),q=path.getPointAtLength((L+4)%len),dx=q.x-pt.x,dy=q.y-pt.y,m=Math.sqrt(dx*dx+dy*dy)||1,lane=((c.g%3)-1)*14;
+   c.el.setAttribute("transform","translate("+(pt.x-dy/m*lane).toFixed(1)+" "+(pt.y+dx/m*lane).toFixed(1)+")");
+   c.el.style.opacity=op;
   });
-  tower(u>=1);if(u<1)raf=requestAnimationFrame(frame);
+  var end=!still&&(gone||tt>1.6);
+  tower(still||end);
+  if(!still&&!end)raf=requestAnimationFrame(frame);
  }
  raf=requestAnimationFrame(frame);
 }
