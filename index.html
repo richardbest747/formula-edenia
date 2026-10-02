@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Edenia V8 Championship - Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:ital,wght@1,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f2ef;--card:#fff;--tx:#14141a;--mut:#6a6a72;--bd:#e2e2dc;--ac:#e10600;--gold:#c9a227;--silv:#9aa0a6;--bron:#b0723a}
+@media (prefers-color-scheme:dark){:root{--bg:#0c0c0f;--card:#17171c;--tx:#f1f1f3;--mut:#9b9ba4;--bd:#2a2a31}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 "Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:800px;margin:0 auto;padding:16px 16px 40px}
+h1,h2,.pos{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif;font-style:italic;font-weight:800;text-transform:uppercase}
+.chq{height:16px;margin:0 -16px 18px;background:repeating-conic-gradient(var(--tx) 0 25%,transparent 0 50%) 0 0/16px 16px}
+.kick{color:var(--ac);font-weight:600;letter-spacing:3px;font-size:12px;text-transform:uppercase}
+h1{font-size:clamp(34px,9vw,58px);line-height:.95;margin:4px 0 8px}
+h1::after{content:"";display:block;width:90px;height:6px;background:var(--ac);margin-top:12px;transform:skewX(-25deg)}
+h2{font-size:19px;margin:28px 0 10px;letter-spacing:1.5px;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:5px;height:20px;background:var(--ac);transform:skewX(-20deg)}
+.sub{color:var(--mut);font-size:14px}
+.gfx{width:100%;height:auto;display:block;border-radius:8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+td.n,th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+.pos{width:44px;font-size:20px;text-align:center}
+.pos.p1{color:var(--gold)}.pos.p2{color:var(--silv)}.pos.p3{color:var(--bron)}
+.who{display:flex;align-items:center;gap:10px}
+.sw{width:5px;height:28px;border-radius:2px;flex:none}
+.who small{display:block;color:var(--mut);font-size:12px;line-height:1.1}
+details{background:var(--card);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;padding:0 12px 12px}
+summary{padding:12px 0;cursor:pointer;font-weight:600}
+.empty{color:var(--mut);padding:18px;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+button,select{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+button.pri{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600}
+.ctl{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.ctl select{flex:1;min-width:140px}
+.rpw{display:grid;grid-template-columns:1fr 210px;gap:10px}
+.rpc{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px}
+.rpc svg{width:100%;height:auto;display:block}
+.tw{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:6px;font-size:13px;max-height:440px;overflow:auto}
+.tw div{display:flex;gap:6px;align-items:center;padding:2px 4px;font-variant-numeric:tabular-nums}
+.tw b{width:22px;font-family:"Barlow Condensed",sans-serif;font-style:italic}
+.tw i{width:4px;height:14px;border-radius:2px;flex:none}
+.tw .x{opacity:.45;text-decoration:line-through}
+@media (max-width:620px){.rpw{grid-template-columns:1fr}.tw{max-height:260px}}
+</style>
+</head>
+<body>
+<main><div id="app"><div class="empty">Loading...</div></div></main>
+<script>
+var S,$=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function tc(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%360;return"hsl("+h+",72%,50%)"}
+
+function resSVG(rn){
+ var R=rn.results,W=1000,top=170,rh=40,H=top+R.length*rh+70,o='';
+ o+='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" font-family="Arial Narrow,Arial,Helvetica,sans-serif" font-weight="700" font-style="italic"><rect width="'+W+'" height="'+H+'" fill="#0c0c0f"/>';
+ for(var i=0;i<72;i++)for(var j=0;j<2;j++)if((i+j)%2===0)o+='<rect x="'+i*14+'" y="'+j*7+'" width="14" height="7" fill="#f1f1f3"/>';
+ o+='<polygon points="40,46 190,46 172,106 22,106" fill="#e10600"/><text x="106" y="90" text-anchor="middle" font-size="34" fill="#fff">ROUND '+rn.no+'</text>';
+ o+='<text x="215" y="80" font-size="40" fill="#fff">'+esc(rn.name.toUpperCase())+'</text><text x="215" y="108" font-size="20" font-weight="400" fill="#9b9ba4">'+esc(S.cfg.series)+' - '+rn.laps+' LAPS</text>';
+ o+='<g font-size="14" font-weight="400" fill="#9b9ba4"><text x="50" y="152" text-anchor="end">POS</text><text x="82" y="152">DRIVER</text><text x="810" y="152" text-anchor="end">GAP</text><text x="960" y="152" text-anchor="end">PTS</text></g>';
+ R.forEach(function(r,i){var y=top+i*rh;
+  o+='<rect y="'+y+'" width="'+W+'" height="'+rh+'" fill="'+(i%2?'#121216':'#17171c')+'"/><rect x="62" y="'+(y+6)+'" width="6" height="'+(rh-12)+'" fill="'+tc(r.team)+'"/>';
+  o+='<text x="50" y="'+(y+28)+'" text-anchor="end" font-size="24" fill="'+(i<3?['#c9a227','#9aa0a6','#b0723a'][i]:'#fff')+'">'+r.pos+'</text>';
+  o+='<text x="82" y="'+(y+28)+'" font-size="22" fill="#fff">'+esc(r.name.toUpperCase())+'</text><text x="320" y="'+(y+27)+'" font-size="15" font-weight="400" fill="#9b9ba4">'+esc(r.team.toUpperCase())+'</text>';
+  o+='<text x="810" y="'+(y+27)+'" text-anchor="end" font-size="20" font-weight="400" fill="'+(r.dnf?'#e10600':'#fff')+'">'+esc(r.gap)+'</text><text x="960" y="'+(y+28)+'" text-anchor="end" font-size="22" fill="#e10600">'+(r.pts?'+'+r.pts:'')+'</text>';
+ });
+ var fl=(rn.fl||"").replace(/[^\x20-\x7E]/g,"").trim().toUpperCase();
+ o+='<text x="40" y="'+(H-26)+'" font-size="18" fill="#fff">'+esc(fl)+'</text><text x="960" y="'+(H-26)+'" text-anchor="end" font-size="16" fill="#e10600">'+esc(S.cfg.series)+'</text></svg>';
+ return o;
+}
+function gfx(rn,el){
+ var u="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(resSVG(rn));el.src=u;
+ var im=new Image();
+ im.onload=function(){try{var c=document.createElement("canvas");c.width=im.width*2;c.height=im.height*2;var x=c.getContext("2d");x.scale(2,2);x.drawImage(im,0,0,im.width,im.height);el.src=c.toDataURL("image/png")}catch(e){}};
+ im.src=u;
+}
+function tables(){
+ var d={},t={};
+ S.rounds.forEach(function(rn){rn.results.forEach(function(r){
+  var e=d[r.name]=d[r.name]||{team:r.team,pts:0,wins:0,pod:0};
+  e.pts+=r.pts;if(!r.dnf&&r.pos===1)e.wins++;if(!r.dnf&&r.pos<=3)e.pod++;
+  t[r.team]=(t[r.team]||0)+r.pts;
+ })});
+ return{d:d,t:t};
+}
+function render(){
+ var h='<div class="chq"></div><div class="kick">Results</div><h1>'+esc(S.cfg.series)+'</h1>';
+ if(!S.rounds.length){$("app").innerHTML=h+'<div class="empty">No races yet. Check back after the first round.</div>';return}
+ var last=S.rounds[S.rounds.length-1],x=tables();
+ h+='<div class="sub">After round '+S.rounds.length+' &middot; '+esc(last.name)+' &middot; won by <b>'+esc(last.results[0].name)+'</b></div>';
+ h+='<h2>Latest result</h2><img class="gfx" id="gx'+last.no+'" alt="Round '+last.no+' results">';
+ h+='<h2>Race replay</h2><div id="rpx"></div>';
+ var dr=Object.keys(x.d).sort(function(a,b){var A=x.d[a],B=x.d[b];return B.pts-A.pts||B.wins-A.wins||B.pod-A.pod});
+ h+='<h2>Drivers</h2><div class="card"><table><tr><th class="n">Pos</th><th>Driver</th><th class="n">Wins</th><th class="n">Pts</th></tr>';
+ dr.forEach(function(n,i){var e=x.d[n];h+='<tr><td class="pos'+(i<3?' p'+(i+1):'')+'">'+(i+1)+'</td><td><div class="who"><span class="sw" style="background:'+tc(e.team)+'"></span><div>'+esc(n)+'<small>'+esc(e.team)+'</small></div></div></td><td class="n">'+e.wins+'</td><td class="n"><b>'+e.pts+'</b></td></tr>'});
+ h+='</table></div>';
+ var tn=Object.keys(x.t).sort(function(a,b){return x.t[b]-x.t[a]});
+ h+='<h2>Constructors</h2><div class="card"><table><tr><th class="n">Pos</th><th>Team</th><th class="n">Pts</th></tr>';
+ tn.forEach(function(n,i){h+='<tr><td class="pos'+(i<3?' p'+(i+1):'')+'">'+(i+1)+'</td><td><div class="who"><span class="sw" style="background:'+tc(n)+'"></span>'+esc(n)+'</div></td><td class="n"><b>'+x.t[n]+'</b></td></tr>'});
+ h+='</table></div>';
+ if(S.rounds.length>1){
+  h+='<h2>Earlier rounds</h2>';
+  S.rounds.slice(0,-1).reverse().forEach(function(rn){h+='<details><summary>Round '+rn.no+': '+esc(rn.name)+' - won by '+esc(rn.results[0].name)+'</summary><img class="gfx" id="gx'+rn.no+'" alt="Round '+rn.no+' results"></details>'});
+ }
+ $("app").innerHTML=h;
+ S.rounds.forEach(function(rn){var im=$("gx"+rn.no);if(im)gfx(rn,im)});
+ if($("rpx"))initReplay();
+}
+/* ---------- replay ---------- */
+var DEFPTS=[[500,90],[800,180],[900,400],[800,650],[500,720],[200,650],[100,400],[200,180]],raf=0;
+function smooth(p){var n=p.length,d="M"+p[0][0]+" "+p[0][1];for(var i=0;i<n;i++){var a=p[(i+n-1)%n],b=p[i],c=p[(i+1)%n],e=p[(i+2)%n];d+="C"+(b[0]+(c[0]-a[0])/6).toFixed(1)+" "+(b[1]+(c[1]-a[1])/6).toFixed(1)+" "+(c[0]-(e[0]-b[0])/6).toFixed(1)+" "+(c[1]-(e[1]-b[1])/6).toFixed(1)+" "+c[0]+" "+c[1]}return d+"Z"}
+function sstep(t){t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)}
+function hsh(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%997;return h}
+function initReplay(){
+ var box=$("rpx");if(!box)return;
+ var opts=S.rounds.slice().reverse().map(function(r){return'<option value="'+(r.no-1)+'">R'+r.no+' - '+esc(r.name)+'</option>'}).join("");
+ box.innerHTML='<div class="ctl"><select id="rsel">'+opts+'</select><button class="pri" id="rgo">Replay</button></div><div class="rpw"><div class="rpc"><svg id="rsvg" viewBox="0 0 1000 800"></svg></div><div class="tw" id="rtw"></div></div>';
+ function safe(m){try{play(m)}catch(e){$("rtw").textContent="Replay error: "+(e&&e.message)}}
+ $("rgo").onclick=function(){safe(true)};$("rsel").onchange=function(){safe(true)};safe(false);
+}
+function play(manual){
+ cancelAnimationFrame(raf);
+ var rn=S.rounds[+$("rsel").value],tr=S.cfg.tracks[rn.track]||{},d=smooth(tr.pts||DEFPTS),svg=$("rsvg"),N=360,i,it;
+ svg.innerHTML='<path d="'+d+'" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="58" stroke-linejoin="round"/><path id="rpath" d="'+d+'" fill="none" stroke="#3a3a44" stroke-width="52" stroke-linejoin="round"/>';
+ var path=$("rpath"),len=path.getTotalLength();
+ function at(f){return path.getPointAtLength((((f%1)+1)%1)*len)}
+ function nrm(f){var a=at(f-.002),b=at(f+.002),dx=b.x-a.x,dy=b.y-a.y,m=Math.sqrt(dx*dx+dy*dy)||1;return{x:-dy/m,y:dx/m}}
+ function pitXY(pp){var f=.93+.14*pp,p=at(f),n=nrm(f),o=58*sstep(Math.min(pp,1-pp)/.22);return{x:p.x+n.x*o,y:p.y+n.y*o}}
+ /* pit lane */
+ var pd="";for(i=0;i<=30;i++){var q=pitXY(i/30);pd+=(i?"L":"M")+q.x.toFixed(1)+" "+q.y.toFixed(1)}
+ svg.insertAdjacentHTML("beforeend",'<path d="'+pd+'" fill="none" stroke="#2c2c34" stroke-width="22" stroke-linecap="round"/><path d="'+pd+'" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="6 6"/><path d="'+d+'" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.5" stroke-dasharray="8 8"/>');
+ var p0=path.getPointAtLength(0),p1=path.getPointAtLength(6);
+ svg.insertAdjacentHTML("beforeend",'<rect x="-14" y="-2" width="28" height="5" fill="#fff" transform="translate('+p0.x+' '+p0.y+') rotate('+(Math.atan2(p1.y-p0.y,p1.x-p0.x)*180/Math.PI+90)+')"/>');
+ /* speed profile: slow in corners, braking before them, accelerating after */
+ var P=[],kap=[],vr=[],sum=0;
+ for(i=0;i<N;i++)P.push(path.getPointAtLength(i/N*len));
+ for(i=0;i<N;i++){var a=P[(i-5+N)%N],b=P[i],c=P[(i+5)%N],da=Math.atan2(c.y-b.y,c.x-b.x)-Math.atan2(b.y-a.y,b.x-a.x);while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;kap.push(Math.abs(da))}
+ var ks=kap.map(function(x,j){var t=0;for(var w=-4;w<=4;w++)t+=kap[(j+w+N)%N];return t/9});
+ var k90=ks.slice().sort(function(x,y){return x-y})[Math.floor(N*.9)]||1;
+ for(i=0;i<N;i++)vr.push(.42+.58*Math.exp(-2.6*Math.min(1.4,ks[i]/k90)));
+ for(it=0;it<2;it++)for(i=N-1;i>=0;i--)vr[i]=Math.min(vr[i],vr[(i+1)%N]+.012);
+ for(it=0;it<2;it++)for(i=0;i<N;i++)vr[i]=Math.min(vr[i],vr[(i-1+N)%N]+.007);
+ for(i=0;i<N;i++)sum+=1/vr[i];
+ var V=vr.map(function(v){return v*sum/N});
+ function vAt(s){var f=(((s%1)+1)%1)*N,j=Math.floor(f),t=f-j;return V[j]*(1-t)+V[(j+1)%N]*t}
+ /* cars */
+ var cars=rn.results.slice().reverse().map(function(r){
+  var code=r.name.replace(/[^A-Za-z ]/g,"").split(" ").pop().slice(0,3).toUpperCase(),h=hsh(r.name),g=r.g||r.pos,base=((g%3)-1)*14;
+  svg.insertAdjacentHTML("beforeend",'<g id="c'+r.pos+'"><circle r="8" fill="'+tc(r.team)+'" stroke="#fff" stroke-width="2"/>'+(r.pos<=6?'<text y="-14" text-anchor="middle" font-size="16" font-weight="700" fill="#fff" stroke="#000" stroke-width="3" paint-order="stroke" style="font-family:sans-serif">'+code+'</text>':'')+'</g>');
+  return{r:r,el:$("c"+r.pos),g:g,spd:r.spd!=null?r.spd:1-.012*(r.pos-1),out:r.out!=null?r.out:(r.dnf?.5:1),s:-.004*(g-1),base:base,lane:base,tlane:base,pit:0,pp:0,pt:0,pitK:1+h%3,box:.34+.32*(h%12)/11,stopT:.9+.01*(r.pos-1),stopped:false,fin:false,ft:0,fs:0,tl:null};
+ });
+ var T=40000,LAPS=5,t0=null,last=0,sig="",over=false,still=!manual&&!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+ function tower(fin){
+  var arr=cars.slice().sort(fin?function(a,b){return a.r.pos-b.r.pos}:function(a,b){
+   if(a.fin||b.fin)return a.fin&&b.fin?a.ft-b.ft:(a.fin?-1:1);
+   return(a.stopped?1:0)-(b.stopped?1:0)||b.s-a.s});
+  var sg=arr.map(function(c){return c.r.pos+(c.stopped?"x":"")+(c.fin?"f":"")+(c.pit>0&&c.pit<4?"p":"")}).join();if(sg===sig)return;sig=sg;
+  $("rtw").innerHTML=arr.map(function(c,k){return'<div><b>'+(k+1)+'</b><i style="background:'+tc(c.r.team)+'"></i><span'+(c.r.dnf&&(fin||c.stopped)?' class="x"':'')+'>'+esc(c.r.name)+(c.pit>0&&c.pit<4&&!fin?' <small>PIT</small>':'')+(c.fin&&!fin?' &#127937;':'')+'</span></div>'}).join("");
+ }
+ function frame(now){
+  if(t0===null){t0=now;last=now}
+  var dt=Math.min(.05,Math.max(0,(now-last)/1000)),tt=still?1:(now-t0)/T,gone=true;last=now;
+  if(still){cars.forEach(function(c){c.s=LAPS*c.spd-.004*(c.g-1);c.pit=4;c.stopped=c.out<1})}
+  else{
+   cars.forEach(function(c){
+    if(c.out<1&&tt>=c.out)c.stopped=true;
+    if(c.stopped)return;
+    var rate=dt*LAPS*c.spd/(T/1000);
+    if(c.fin){c.s+=rate*vAt(c.s)*.4;return}
+    if(c.pit===1){c.pp+=dt*c.box/.7;if(c.pp>=c.box){c.pp=c.box;c.pit=2;c.pt=0}}
+    else if(c.pit===2){c.pt+=dt;if(c.pt>=c.stopT)c.pit=3}
+    else if(c.pit===3){c.pp+=dt*(1-c.box)/.7;if(c.pp>=1){c.pp=1;c.pit=4;c.s=c.pitK+1.07;c.lane=0}}
+    else{c.s+=rate*vAt(c.s);if(c.pit===0&&c.s>=c.pitK+.93){c.pit=1;c.pp=0;c.s=c.pitK+.93}}
+    if(c.pit>=1&&c.pit<=3)c.s=c.pitK+.93+.14*c.pp;
+    else if(!over&&c.s>=LAPS){over=true;c.fin=true;c.ft=tt;c.fs=c.s;cars.forEach(function(o){if(o!==c&&!o.stopped&&!o.fin)o.tl=Math.floor(o.s)+1})}
+    else if(over&&c.tl!=null&&c.s>=c.tl){c.fin=true;c.ft=tt;c.fs=c.s}
+   });
+   /* pull out to pass a car that is just ahead */
+   var ord=cars.filter(function(c){return!c.stopped&&!c.fin&&(c.pit===0||c.pit===4)}).sort(function(a,b){return b.s-a.s});
+   ord.forEach(function(c,k){var e=k?ord[k-1]:null;c.tlane=(e&&e.s-c.s<.02)?(e.lane>=0?-14:14):c.base});
+  }
+  cars.forEach(function(c){
+   var x,y,op=1;
+   if(c.pit>=1&&c.pit<=3){var q=pitXY(c.pp);x=q.x;y=q.y}
+   else{c.lane+=(c.tlane-c.lane)*Math.min(1,dt*6);var f=c.s,p=at(f),n=nrm(f);x=p.x+n.x*c.lane;y=p.y+n.y*c.lane}
+   if(c.stopped)op=tt>1.2?Math.max(0,.35-(tt-1.2)*2):.35;
+   else if(c.fin&&!still)op=Math.max(0,1-(c.s-c.fs)*3);
+   if(op>0)gone=false;
+   c.el.setAttribute("transform","translate("+x.toFixed(1)+" "+y.toFixed(1)+")");c.el.style.opacity=op;
+  });
+  var end=!still&&(gone||tt>2.4);
+  tower(still||end);
+  if(!still&&!end)raf=requestAnimationFrame(frame);
+ }
+ raf=requestAnimationFrame(frame);
+}
+
+fetch("season.json?"+Date.now()).then(function(r){return r.json()}).then(function(d){S=d;render()})
+ .catch(function(){$("app").innerHTML='<div class="empty">Couldn\'t load season.json. Make sure it sits next to index.html, and open this through the GitHub Pages link, not by double-clicking the file.</div>'});
+</script>
+</body>
+</html>
